@@ -19,10 +19,13 @@ function renderTable() {
 
         const row = document.createElement("tr");
 
+        var times_wasted = Math.floor(Math.random()*10)
+        var avg_waste = Math.floor(Math.random()*10)
+
         row.innerHTML = `
             <td>${item.name}</td>
-            <td>hi</td>
-            <td>hi again</td>
+            <td>${times_wasted}</td>
+            <td>${avg_waste}</td>
         `;
 
         eco_bucket_table.appendChild(row);
