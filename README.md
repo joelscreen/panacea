@@ -1,2 +1,1 @@
-# goal competition
-for dunes
+will be updated soon
