@@ -1,11 +1,9 @@
 from flask import Flask, render_template, request, jsonify
-from google import genai
+from groq import Groq
 
 app = Flask(__name__)
 
-client = genai.Client(
-    api_key="AQ.Ab8RN6IyTV7mzT2_TlFT6wFYMzmE0_PSVmeoKXmcR91gPz7lbQ"
-)
+client = Groq(api_key="GROK_API_KEY")
 
 freshness_data = {
     "temperature": "",
@@ -39,18 +37,15 @@ def recipes_api():
     message = data.get("message", "")
     items = data.get("items", [])
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
-            contents=f"""
+    system_prompt = f"""
                 You are a Recipe AI developed by Joel Mendonca, Naisha Gupta, Aswin Kumaran, and Jasmitha Krishna (aka Jeshwara). If asked about your identity, tell them this.
 
                 Answer in plain text only.
                 Do not use markdown.
                 Use normal paragraphs.
-                Use 300 words maximum. 
-                Explain in bullets points.
-                Only respond to questions related to food recipes and food wastage. If the user asks anything else, give a 2-3 sentences reply saying that you can only help with things related to food recipes.
+                Try to use 300 words every time.
+                Explain in bullets points + short lines.
+                Only respond to questions related to food recipes and food wastage. If the user asks anything else, tell them that you can only help with things related to food recipes.
                 Always respond kindly to the user.
 
                 User's Available foods and expiry risk scores: {items}
@@ -60,13 +55,19 @@ def recipes_api():
                 If asked about recipes, include a minimum of 5-6 different recipes, with minimum of 4 recipes which have ingredients that the user doesn't have and 2-3 recipes which have ingredients that the user has.
                 
                 When recommending recipes to the user, if an item has a higher expiry risk score, try to suggest recipes that use a lot of that ingredient.
-
-                User: {message}
                 """
+
+    try:
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-20b",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message}
+            ]
         )
 
         return jsonify({
-            "reply": response.text
+            "reply": response.choices[0].message.content
         })
 
     except Exception as e:
@@ -94,7 +95,7 @@ def update_freshness():
 
     freshness_data["temperature"] = data.get("temperature", "")
     freshness_data["humidity"] = data.get("humidity", "")
-    freshness_data["freshness"] = data.get("freshness", "")
+    freshness_data["alcohol"] = data.get("alcohol", "")
 
     return jsonify({
         "success": True
