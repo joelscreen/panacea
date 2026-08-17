@@ -1,3 +1,23 @@
+// Redirect if not logged in
+if (localStorage.getItem("session_token") == null) {
+    window.location.href = "/login";
+}
+
+// Log Out
+const log_out = document.getElementById("log-out");
+log_out.addEventListener('click', async function() {
+    await fetch("/logout", {
+        method: "POST",
+        headers: {
+            "session-token": localStorage.getItem("session_token")
+        }
+    });
+
+    localStorage.removeItem("session_token");
+
+    window.location.href = "/login";
+})
+
 // Global Variables
 var predicted_week_demand = JSON.parse(localStorage.getItem("predicted_demand_list")) || [];
 
@@ -119,7 +139,7 @@ function updateAverage() {
 
 updateAverage()
 
-// Predicted Food this Week
+// Predicted Food this Day
 function predictedFoodPerWeek() {
     const celebrations = JSON.parse(localStorage.getItem("celebrations")) || {};
 
@@ -133,7 +153,7 @@ function predictedFoodPerWeek() {
 
     for (var event in celebrations) {
         if (celebrations[event] === true) {
-            var parts = event.split("-");
+            var parts = event.split("- ");
 
             if (parts.length >= 2) {
                 var dateText = parts[parts.length - 1].trim(); 

@@ -1,3 +1,23 @@
+// Redirect if not logged in
+if (localStorage.getItem("session_token") == null) {
+    window.location.href = "/login";
+}
+
+// Log Out
+const log_out = document.getElementById("log-out");
+log_out.addEventListener('click', async function() {
+    await fetch("/logout", {
+        method: "POST",
+        headers: {
+            "session-token": localStorage.getItem("session_token")
+        }
+    });
+
+    localStorage.removeItem("session_token");
+
+    window.location.href = "/login";
+})
+
 const available_to_share = document.getElementById("available-to-share");
 let items = JSON.parse(localStorage.getItem("items")) || [];
 

@@ -1,11 +1,11 @@
 const temperature_element = document.getElementById("temperature");
 const humidity_element = document.getElementById("humidity");
-const freshness_element = document.getElementById("freshness");
+const alcohol_element = document.getElementById("alcohol");
 const broadcast_btn = document.getElementById("broadcast-btn");
 
 broadcast_btn.addEventListener('click', async function() {
 
-    if (Number.isNaN(Number(temperature_element.value)) || Number.isNaN(Number(humidity_element.value)) || Number.isNaN(Number(freshness_element.value))) {
+    if (Number.isNaN(Number(temperature_element.value)) || Number.isNaN(Number(humidity_element.value)) || Number.isNaN(Number(alcohol_element.value))) {
         return;
     }
 
@@ -17,7 +17,7 @@ broadcast_btn.addEventListener('click', async function() {
         body: JSON.stringify({
             temperature: temperature_element.value,
             humidity: humidity_element.value,
-            freshness: freshness_element.value
+            alcohol: alcohol_element.value
         })
     });
 
@@ -28,6 +28,6 @@ broadcast_btn.addEventListener('click', async function() {
 
         temperature_element.value = "";
         humidity_element.value = "";
-        freshness_element.value = "";
+        alcohol_element.value = "";
     }
 });

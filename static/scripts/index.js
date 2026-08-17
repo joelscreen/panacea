@@ -1,3 +1,42 @@
+// Redirect if not logged in
+if (localStorage.getItem("session_token") == null) {
+    window.location.href = "/login";
+}
+
+// Fetch User Details
+async function welcome_message() {
+    const response = await fetch("/fetch-user-details", {
+        headers: {
+            "session-token": localStorage.getItem("session_token")
+        }
+    });
+
+    if (!response.ok) {
+        return;
+    }
+
+    const data = await response.json();
+
+    document.getElementById("welcome-msg").textContent = `Welcome back, ${data.full_name}!!`
+}
+
+welcome_message();
+
+// Log Out
+const log_out = document.getElementById("log-out");
+log_out.addEventListener('click', async function() {
+    await fetch("/logout", {
+        method: "POST",
+        headers: {
+            "session-token": localStorage.getItem("session_token")
+        }
+    });
+
+    localStorage.removeItem("session_token");
+
+    window.location.href = "/login";
+})
+
 // Function to get remaining days
 function getRemainingDays(item) {
     const now = Date.now();

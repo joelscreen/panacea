@@ -1,3 +1,23 @@
+// Redirect if not logged in
+if (localStorage.getItem("session_token") == null) {
+    window.location.href = "/login";
+}
+
+// Log Out
+const log_out = document.getElementById("log-out");
+log_out.addEventListener('click', async function() {
+    await fetch("/logout", {
+        method: "POST",
+        headers: {
+            "session-token": localStorage.getItem("session_token")
+        }
+    });
+
+    localStorage.removeItem("session_token");
+
+    window.location.href = "/login";
+})
+
 // Eco Bucket Table
 const eco_bucket_table = document.getElementById("eco-bucket-table");
 
@@ -61,6 +81,7 @@ localStorage.setItem("items", JSON.stringify(items));
 // Freshness Info
 const temperature_p = document.getElementById("temperature-p");
 const humidity_p = document.getElementById("humidity-p");
+const alcohol_p = document.getElementById("alcohol-p");
 const freshness_p = document.getElementById("freshness-p");
 
 async function updateFreshness() {
@@ -81,11 +102,13 @@ async function updateFreshness() {
         humidity_p.textContent = "";
     }
 
-    if (data.freshness) {
-        freshness_p.textContent = data.freshness;
+    if (data.alcohol) {
+        alcohol_p.textContent = data.alcohol;
     } else {
-        freshness_p.textContent = "";
+        alcohol_p.textContent = "";
     }
+
+    freshness_p.textContent = Math.max(0, Math.min(100, 100 - data.temperature - data.humidity - data.alcohol)).toFixed(2);
 }
 
 updateFreshness();
