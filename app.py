@@ -6,11 +6,158 @@ app = Flask(__name__)
 
 client = Groq(api_key=os.getenv("GROK_API_KEY"))
 
+supabase: Client = create_client("https://awpbaqarpneslqbwmcuq.supabase.co", os.getenv("SUPABASE_KEY"))
+
 freshness_data = {
     "temperature": "",
     "humidity": "",
     "freshness": ""
 }
+
+def create_session(user_id):
+    token = secrets.token_hex(32)
+
+    supabase.table("session_tokens").insert({
+        "user_id": user_id,
+        "session_token": token
+    }).execute()
+
+    return token
+
+def get_user_from_session():
+    token = request.headers.get("session-token")
+
+    if not token:
+        return None
+
+    session = (
+        supabase
+        .table("session_tokens")
+        .select("user_id")
+        .eq("session_token", token)
+        .execute()
+    )
+
+    if len(session.data) == 0:
+        return None
+
+    user_id = session.data[0]["user_id"]
+
+    user = (
+        supabase
+        .table("Users")
+        .select("*")
+        .eq("id", user_id)
+        .execute()
+    )
+
+    if len(user.data) == 0:
+        return None
+
+    return user.data[0]
+
+@app.route('/register-user', methods=["POST"])
+def register_user():
+    data = request.get_json()
+
+    name = data["name"]
+    age = data["age"]
+    loginid = data["loginid"]
+    email = data["email"]
+    password = data["password"]
+
+    same_user = supabase.table("Users").select("*").or_(f"full_name.eq.{name},loginid.eq.{loginid},email.eq.{email},password.eq.{password}").execute()
+
+    if len(same_user.data) > 0:
+        return jsonify(success=False)
+
+    user_reg = supabase.table("Users").insert({
+        "full_name": name,
+        "loginid": loginid,
+        "age": age,
+        "password": password,
+        "email": email
+    }).execute()
+
+    user = supabase.table("Users").select("*").eq("loginid", loginid).execute()
+    
+    if len(user.data) == 0:
+        return jsonify(success=False)
+
+    user = user.data[0]
+
+    if user["password"] != password:
+        return jsonify(success=False)
+
+    token = create_session(user["id"])
+
+    return jsonify(
+        success=True,
+        session_token=token
+    )
+
+@app.route('/check-user-login', methods=["POST"])
+def check_user_login():
+    data = request.get_json()
+
+    loginid = data["loginid"]
+    password = data["password"]
+
+    user = supabase.table("Users").select("*").eq("loginid", loginid).execute()
+
+    if len(user.data) == 0:
+        return jsonify(success=False)
+
+    user = user.data[0]
+
+    if user["password"] != password:
+        return jsonify(success=False)
+
+    token = create_session(user["id"])
+
+    return jsonify(
+        success=True,
+        session_token=token
+    )
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    token = request.headers.get("session-token")
+
+    if not token:
+        return jsonify(success=True)
+
+    supabase.table("session_tokens").delete().eq(
+        "session_token", token
+    ).execute()
+
+    return jsonify(success=True)
+
+@app.route("/fetch-user-details")
+def fetch_diary_entries():
+    user = get_user_from_session()
+
+    if user is None:
+        return jsonify(error="unauthorized"), 401
+
+    entries = (
+        supabase
+        .table("Users")
+        .select("*")
+        .eq("id", user["id"])
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    return jsonify(entries.data[0])
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
 
 @app.route('/')
 def main_page():
