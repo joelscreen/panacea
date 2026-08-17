@@ -32,10 +32,29 @@ a {
     color: #186918;
     text-decoration: none;
     transition: all 0.2s ease;
-    display: inline-block; 
+    display: inline-block;
 }
 
-a:hover {
+.log-out:hover {
+    transform: scale(1.03);
+}
+
+.log-out {
+    margin-left: auto;
+    display: inline-block;
+    transition: transform 0.3s ease; 
+    background: #DC2626;
+    color: white;
+    padding: 5px 10px 5px 10px;
+    font-size: 23px;
+    border-radius: 8px;
+    border: 2px solid #551c1c;
+}
+
+.log-out:hover {
+    background: #B91C1C;
+    cursor: pointer;
+    border: 2px solid #411919;
     transform: translateY(-3px);
 }
 
@@ -65,18 +84,20 @@ table {
 }
 
 .navbar {
-    background-color: #506e50;
-    width: 100vw;
-    height: 40px;
-    left: 0;
-    top: 0;
-    padding: 20px;
     position: fixed;
-    z-index: 1000;
-    padding-left: 17px;
+    top: 0;
+    left: 0;
+    right: 0;   
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;    
+    padding: 15px 17px; 
+    background-color: #506e50;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+img {
+    height: fit-content;
 }
 
 .content {
@@ -89,7 +110,7 @@ table {
 .desc {
     border-radius: 8px;
     padding: 20px;
-    width: 400px;
+    width: 100%;
     font-size: 33px;
     color: #000000;
 }
@@ -318,10 +339,7 @@ table th, table td {
     box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="password"] {
+input {
     background-color: #d9e0d9;
     color: #000000;
     border: 2px solid #bbf0b9;
@@ -333,18 +351,12 @@ input[type="password"] {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-input[type="text"]:hover,
-input[type="number"]:hover,
-input[type="email"]:hover,
-input[type="password"]:hover {
+input:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
-input[type="text"]:focus,
-input[type="number"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
+input:focus {
     border-color: #198819;
     box-shadow: 0 0 0 4px rgba(25, 136, 25, 0.15);
 }
