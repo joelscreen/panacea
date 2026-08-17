@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
+from supabase import Client, create_client
 import os
 
 app = Flask(__name__)
